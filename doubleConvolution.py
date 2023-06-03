@@ -1,8 +1,8 @@
 import torch.nn as nn
 
-class doubleConvolution(nn.Module):
+class DoubleConvolution(nn.Module):
     def __init__(self, inputChannels, outputChannels):
-        super(doubleConvolution, self).__init__()
+        super(DoubleConvolution, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(inputChannels, outputChannels, 3, 1, 1, bias = False),
             nn.BatchNorm2d(outputChannels),
