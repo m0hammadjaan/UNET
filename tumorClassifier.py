@@ -45,6 +45,36 @@ class TumorClassifier():
                 print()
 
         return history
+    
+    def test(self, testLoader, threshold = 0.5):
+        self.model.eval()
+        testDataIndexes = testLoader.sampler.indices[:]
+        dataLen = len(testDataIndexes)
+        batchSize = testLoader.batch_size
+        if batchSize != 1:
+            raise Exception('Batch size must be 1 for testing')
+        testLoader = iter(testLoader)
+        while len(testDataIndexes) != 0:
+            data = testLoader.next()
+            index = int(data['index'])
+            if index in testDataIndexes:
+                testDataIndexes.remove(index)
+            else:
+                continue
+            image = data['image'].view(1, 1, 512, 512).to(self.device)
+            mask = data['mask']
+            maskPred = self.model(image).cpu()
+            maskPred = maskPred.numpy()
+            mask = np.resize(mask, (1, 512, 512))
+            maskPred = np.resize(maskPred, (1, 512, 512))
+
+            meanValueScore += self.DiceLoss.diceCoefficient(maskPred, mask)
+            meanValueScore = meanValueScore / dataLen
+            self.model.train()
+            return meanValueScore
+
+
+            
 
 
     def saveModel(self, path):
